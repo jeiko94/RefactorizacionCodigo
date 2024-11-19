@@ -1,10 +1,13 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace RefactorizacionCodigo
+﻿namespace RefactorizacionCodigo
 {
     public class ControladorUsuarios
     {
-        private List<Usuario> usuarios = new List<Usuario>();
+        private IRepositorioUsuarios _repositorio;
+
+        public ControladorUsuarios(IRepositorioUsuarios repositorio)
+        {
+            _repositorio = repositorio;
+        }
 
         public void RegistrarUsuario(string nombre, string email, string password)
         {
@@ -12,28 +15,28 @@ namespace RefactorizacionCodigo
             VerificarDisponibilidadEmail(email);
 
             Usuario nuevoUsuario = CrearUsuario(nombre, email, password);
-            usuarios.Add(nuevoUsuario);
+            _repositorio.Agregar(nuevoUsuario);
         }
 
         public void ValidarEntradas(string nombre, string email, string password)
         {
             if (string.IsNullOrWhiteSpace(nombre))
             {
-                throw new ArgumentException("El nombre es obligatorio.", nameof(nombre));
+                throw new ArgumentException("El nombre es obligatorio");
             }
             if (string.IsNullOrWhiteSpace(email))
             {
-                throw new ArgumentException("El email es obligatorio,", nameof(email));
+                throw new ArgumentException("El email es obligatorio");
             }
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new ArgumentException("La contraseña es obligatoria.", nameof(password));
+                throw new ArgumentException("La contraseña es obligatoria");
             }
         }
 
         private void VerificarDisponibilidadEmail(string email)
         {
-            if (usuarios.Exists(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+            if (_repositorio.ExisteEmail(email))
             {
                 throw new InvalidOperationException("El email ya esta en uso.");
             }
